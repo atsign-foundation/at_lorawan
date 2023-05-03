@@ -35,8 +35,8 @@ each with their own atSigns e.g. `@demo_gateway_1`, `@demo_gateway_2`, ...
     respond to requests for telemetry, requests to update itself, restart 
     the device, etc ... 
 * A `manager` program which, when run in a directory which in its 
-  sub-directories contains the configurations for many gateways, will
-  * Scan the sub-directory tree and find the directories which contain 
+  subdirectories contains the configurations for many gateways, will
+  * Scan the subdirectory tree and find the directories which contain 
     gateway configs
   * For each gateway, identify if there have been changes since the last 
     time this `manager` program was run and, if there have been changes:
@@ -46,8 +46,8 @@ each with their own atSigns e.g. `@demo_gateway_1`, `@demo_gateway_2`, ...
       updated config
     * Keep track of messages from gateway atSigns which (i) confirm receipt 
       of the request and (ii) confirm the download status
-    * Report for each gateway
-      * Whether config change had been detected in the local filesystem
-      * Whether an 'update your config' request was sent to the gateway
-      * Whether the gateway acknowledged receipt within N seconds or not
-      * Whether the gateway successfully downloaded its new config or not
+  * Report for each gateway
+    * Whether config change had been detected in the local filesystem
+    * Whether an 'update your config' request was sent to the gateway
+    * Whether the gateway acknowledged receipt within N seconds or not
+    * Whether the gateway successfully downloaded its new config or not
