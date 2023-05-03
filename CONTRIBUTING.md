@@ -28,31 +28,32 @@ describe. The atsign-foundation GitHub organization's conventions and configurat
 
 ### Prerequisites
 
-   ``` sh
-   # show how to install the tools needed to work with the code here
-   ```
+The [Dart SDK](https://dart.dev/get-dart), or
+the [Flutter SDK](https://docs.flutter.dev/get-started/install) which includes
+the Dart SDK
 
 
 ### GitHub Repository Clone
 
 To prepare your dedicated GitHub repository:
 
-1. Fork in GitHub https://github.com/atsign-foundation/REPO
-2. Clone *your forked repository* (e.g., `git clone git@github.com:yourname/REPO`)
+1. Fork in GitHub https://github.com/atsign-foundation/at_lorawan
+2. Clone *your forked repository* (e.g., `git clone git@github.
+   com:yourname/lorawan`)
 3. Set your remotes as follows:
 
    ```sh
-   cd REPO
-   git remote add upstream git@github.com:atsign-foundation/REPO.git
+   cd at_lorawan
+   git remote add upstream git@github.com:atsign-foundation/at_lorawan.git
    git remote set-url upstream --push DISABLED
    ```
 
    Running `git remote -v` should give something similar to:
 
    ```text
-   origin  git@github.com:yourname/REPO.git (fetch)
-   origin  git@github.com:yourname/REPO.git (push)
-   upstream        git@github.com:atsign-foundation/REPO.git (fetch)
+   origin  git@github.com:yourname/at_lorawan.git (fetch)
+   origin  git@github.com:yourname/at_lorawan.git (push)
+   upstream        git@github.com:atsign-foundation/at_lorawan.git (fetch)
    upstream        DISABLED (push)
    ```
 
