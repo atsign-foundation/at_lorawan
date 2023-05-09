@@ -51,3 +51,9 @@ each with their own atSigns e.g. `@demo_gateway_1`, `@demo_gateway_2`, ...
     * Whether an 'update your config' request was sent to the gateway
     * Whether the gateway acknowledged receipt within N seconds or not
     * Whether the gateway successfully downloaded its new config or not
+
+[//]: # ( TODO Make two variations of the shell script)
+
+[//]: # ( one for an "ACME Corp" gateway)
+
+[//]: # (another for a "Wonka Industries" gateway)
