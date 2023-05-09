@@ -3,7 +3,6 @@ import 'dart:io';
 
 // external imports
 import 'package:at_client/at_client.dart';
-import 'package:chalkdart/chalk.dart';
 
 // at_lorawan imports
 import 'package:at_cli_commons/at_cli_commons.dart';
@@ -36,7 +35,7 @@ class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
   }
 
   Future<void> listenForRequests() async {
-    _writeListening();
+    logger.info('Listening for requests');
 
     AtRpc rpc = AtRpc(
         atClient: atClient,
@@ -54,8 +53,7 @@ class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
 
   @override
   Future<AtRpcResp> handleRequest(AtRpcReq request) async {
-    stdout.writeln(chalk.brightGreen(
-        'Received request ${jsonPrettyPrinter.convert(request.toJson())}'));
+    logger.info('Received request ${jsonPrettyPrinter.convert(request.toJson())}');
 
     GatewayRequestPayload payload = GatewayRequestPayload.fromJson(request.payload);
 
@@ -71,7 +69,7 @@ class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
 
     // Response type should be 'NACK' if there was an error (i.e. non-zero exit code)
     final AtRpcRespType respType = reloadResult.exitCode == 0
-        ? AtRpcRespType.response
+        ? AtRpcRespType.success
         : AtRpcRespType.nack;
     AtRpcResp response = AtRpcResp(
         reqId: request.reqId,
@@ -84,18 +82,13 @@ class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
           'stderr': reloadResult.stderr
         });
 
-    _writeListening();
-
+    logger.info('Sending response ${jsonPrettyPrinter.convert(response.toJson())}');
     return response;
   }
 
   @override
   Future<void> handleResponse(AtRpcResp response) async {
-    stdout.writeln(chalk.brightGreen(
-        'Received response ${jsonPrettyPrinter.convert(response.toJson())}'));
-  }
-
-  void _writeListening() {
-    stdout.write(chalk.brightBlue.bold('Listening ... '));
+    logger.info(
+        'Received response ${jsonPrettyPrinter.convert(response.toJson())}');
   }
 }

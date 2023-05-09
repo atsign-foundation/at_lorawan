@@ -1,7 +1,11 @@
 #!/bin/bash
 
-path_to_at_server_script="$HOME/dev/atsign/repos/at_server"
-start_at_server_cmd="$path_to_at_server_script/tools/run_locally/scripts/macos/at_server"
+scriptName=$(basename -- "$0")
+cd "$(dirname -- "$0")"
+scriptDir="$(pwd)"
+
+path_to_at_server_repo="$scriptDir/../../at_server"
+start_at_server_cmd="$path_to_at_server_repo/tools/run_locally/scripts/macos/at_server"
 
 mkdir -p runDir
 

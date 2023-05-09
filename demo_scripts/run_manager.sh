@@ -10,4 +10,5 @@ dart ../../packages/at_lorawan/bin/lw_manager_main.dart \
     -a "@$mgr_name" \
     -c "$mgr_name" \
     -d "vip.ve.atsign.zone" \
+    --never-sync \
     --configs-dir configs

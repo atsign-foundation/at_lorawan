@@ -89,7 +89,8 @@ class CLIBase {
       logger.logger.level = Level.INFO;
     } else {
       AtSignLogger.root_level = 'SHOUT';
-      logger.logger.level = Level.SHOUT;
+      // logger.logger.level = Level.SHOUT;
+      logger.logger.level = Level.INFO;
     }
   }
 

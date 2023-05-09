@@ -4,7 +4,6 @@ import 'dart:io';
 // external imports
 import 'package:at_client/at_client.dart';
 import 'package:at_lorawan/lorawan_rpcs.dart';
-import 'package:chalkdart/chalk.dart';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -43,7 +42,7 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
     final dir = Directory(configsDir);
     final List<FileSystemEntity> entities = await dir.list().toList();
     for (var subDir in entities) {
-      logger.shout('Scanning ${subDir.path}');
+      logger.info('Scanning ${subDir.path}');
       if (subDir is! Directory) {
         continue;
       }
@@ -63,7 +62,7 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
           lastSentDigest = hashFile.readAsStringSync();
         }
 
-        logger.shout('HashCode of config file is $latestDigest - last sent hashCode is $lastSentDigest');
+        logger.info('HashCode of config file is $latestDigest - last sent hashCode is $lastSentDigest');
         if (latestDigest != lastSentDigest) {
           changed.add(gatewayAtSign);
         }
@@ -134,8 +133,6 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
 
   @visibleForTesting
   Future<void> startRpcListener() async {
-    _writeListening();
-
     rpc = AtRpc(
         atClient: atClient,
         baseNameSpace: nameSpace,
@@ -148,17 +145,14 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
 
   @override
   Future<AtRpcResp> handleRequest(AtRpcReq request) async {
-    stdout.write(chalk.brightRed(
-        'Received unexpected request ${jsonPrettyPrinter.convert(request.toJson())}'));
+    logger.warning('Received unexpected request ${jsonPrettyPrinter.convert(request.toJson())}');
     AtRpcResp response = AtRpcResp.nack(request: request, message: 'Not expecting requests');
-    _writeListening();
     return response;
   }
 
   @override
   Future<void> handleResponse(AtRpcResp response) async {
-    stdout.writeln(chalk.brightGreen(
-        'Received response ${jsonPrettyPrinter.convert(response.toJson())}'));
+    logger.info('Received response ${jsonPrettyPrinter.convert(response.toJson())}');
     if (awaitingResponse.containsKey(response.reqId)) {
       var gatewayResponses = responses[response.reqId]!;
       gatewayResponses.responses.add(response);
@@ -168,10 +162,10 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
         case AtRpcRespType.nack:
           awaitingResponse.remove(response.reqId);
           break;
-        case AtRpcRespType.errorResponse:
+        case AtRpcRespType.error:
           awaitingResponse.remove(response.reqId);
           break;
-        case AtRpcRespType.response:
+        case AtRpcRespType.success:
           awaitingResponse.remove(response.reqId);
 
           // Update the .lastHashSent
@@ -182,10 +176,6 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
           break;
       }
     }
-  }
-
-  void _writeListening() {
-    stdout.write(chalk.brightBlue.bold('Listening ... '));
   }
 
   LoraWanManager(

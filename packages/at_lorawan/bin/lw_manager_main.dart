@@ -16,7 +16,8 @@ void main(List<String> args) async {
   late LoraWanManager manager;
 
   ArgParser argsParser = CLIBase.argsParser
-    ..addOption('configs-dir', mandatory: true,
+    ..addOption('configs-dir',
+        mandatory: true,
         help: 'directory with sub-directories for each managed gateway');
 
   ArgResults parsedArgs = argsParser.parse(args);
@@ -49,16 +50,28 @@ void main(List<String> args) async {
 
     logger.info('Scanning for changes in ${manager.configsDir}');
     var changeList = await manager.scanForChanges();
-    logger.info('Changed configs: $changeList');
 
-    for (String gatewayAtSign in changeList) {
-      logger.info('Uploading config for $gatewayAtSign');
-      await manager.uploadConfigForGateway(gatewayAtSign);
+    if (changeList.isEmpty) {
+      logger.info('No changed configs');
+    } else {
+      logger.info('Changed configs: $changeList');
+      for (String gatewayAtSign in changeList) {
+        logger.info('Uploading config for $gatewayAtSign');
+        await manager.uploadConfigForGateway(gatewayAtSign);
+      }
+
+      var timeout = Duration(seconds: 10);
+      logger.info(
+          'Waiting for ${timeout.inSeconds} seconds for'
+              ' responses from all gateways');
+      var report = await manager.waitThenGetReport(timeout: timeout);
+      logger.info('Report:\n\t${report.join('\n\t')}');
+
+      exit(0);
     }
-
-    await manager.waitThenGetReport();
   } catch (error, stackTrace) {
     logger.severe('Uncaught error: $error');
     logger.severe(stackTrace.toString());
+    exit(1);
   }
 }

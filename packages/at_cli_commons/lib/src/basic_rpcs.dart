@@ -41,7 +41,7 @@ class AtRpcReq {
   }
 }
 
-enum AtRpcRespType { ack, nack, response, errorResponse }
+enum AtRpcRespType { ack, nack, success, error }
 
 class AtRpcResp {
   final int reqId;
@@ -61,7 +61,7 @@ class AtRpcResp {
   {required AtRpcReq request, required Map<String, dynamic> payload, String? message}) {
     return AtRpcResp(
         reqId: request.reqId,
-        respType: AtRpcRespType.response,
+        respType: AtRpcRespType.success,
         payload: payload,
         message: message);
   }
@@ -114,7 +114,7 @@ class AtRpc {
             onError: (e) => logger.severe('Notification Failed: $e'),
             onDone: () => logger.info('RPC request listener stopped'));
 
-    regex = '(response|ack|nack).\\d+.$domainNameSpace.$rpcsNameSpace.$baseNameSpace@';
+    regex = '(success|error|ack|nack).\\d+.$domainNameSpace.$rpcsNameSpace.$baseNameSpace@';
     logger.info('Subscribing to $regex');
     atClient.notificationService
         .subscribe(
@@ -222,7 +222,8 @@ class AtRpc {
     // request key should be @manager:response.<id>.<domainNameSpace>.<rpcsNameSpace>.<baseNameSpace>@gateway
     // strip off the prefix `@manager:response.`
     String requestKey = notification.key
-        .replaceFirst('${notification.to}:response.', '')
+        .replaceFirst('${notification.to}:success.', '')
+        .replaceFirst('${notification.to}:error.', '')
         .replaceFirst('${notification.to}:ack.', '')
         .replaceFirst('${notification.to}:nack.', '');
     // We should now have something like <id>.<domainNameSpace>.<rpcsNameSpace>.<baseNameSpace>@manager
