@@ -30,7 +30,7 @@ dependency_overrides:
     git:
       url: https://github.com/atsign-foundation/at_client_sdk.git
       path: packages/at_client
-      ref: gkc-put-request-option-to-force-use-remote-secondary
+      ref: trunk
 
 dev_dependencies:
   lints: ^2.0.1
