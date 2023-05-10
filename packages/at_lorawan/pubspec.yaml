@@ -6,7 +6,7 @@ environment:
   sdk: '>=2.19.4 <3.0.0'
 
 dependencies:
-  args: ^2.4.0
+  args: ^2.4.1
   at_client: ^3.0.58
   at_cli_commons:
     path: ../../packages/at_cli_commons
@@ -27,7 +27,10 @@ dependency_overrides:
       path: packages/at_onboarding_cli
       ref: trunk
   at_client:
-    path: ../../../at_client_sdk/packages/at_client
+    git:
+      url: https://github.com/atsign-foundation/at_client_sdk.git
+      path: packages/at_client
+      ref: gkc-put-request-option-to-force-use-remote-secondary
 
 dev_dependencies:
   lints: ^2.0.1

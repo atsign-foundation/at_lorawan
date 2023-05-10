@@ -15,8 +15,8 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
   static const String defaultNameSpace = 'lorawan_demo';
   static const JsonEncoder jsonPrettyPrinter = JsonEncoder.withIndent('    ');
 
-  final Map<int, GatewayRequest> awaitingResponse = {};
-  final Map<int, GatewayResponses> responses = {};
+  Map<int, GatewayRequest> awaitingResponse = {};
+  Map<int, GatewayResponses> responses = {};
   final String configsDir;
 
   late AtRpc rpc;
@@ -37,12 +37,14 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
   /// - Compute hash of the config file
   /// - If computed hash is not same as the .lastSentHash, then we've found a change
   Future<List<String>> scanForChanges() async {
+    awaitingResponse = {};
+    responses = {};
     List<String> changed = [];
 
     final dir = Directory(configsDir);
     final List<FileSystemEntity> entities = await dir.list().toList();
     for (var subDir in entities) {
-      logger.info('Scanning ${subDir.path}');
+      logger.finer('Scanning ${subDir.path}');
       if (subDir is! Directory) {
         continue;
       }
@@ -62,7 +64,7 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
           lastSentDigest = hashFile.readAsStringSync();
         }
 
-        logger.info('HashCode of config file is $latestDigest - last sent hashCode is $lastSentDigest');
+        logger.finer('HashCode of config file is $latestDigest - last sent hashCode is $lastSentDigest');
         if (latestDigest != lastSentDigest) {
           changed.add(gatewayAtSign);
         }
@@ -191,7 +193,7 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
         super.cramSecret,
         super.syncDisabled});
 
-  final configShareOptions = PutRequestOptions()..useRemoteSecondary = true;
+  final configShareOptions = PutRequestOptions()..useRemoteAtServer = true;
 
   Future<AtKey> shareConfigWithGatewayAtSign(String gatewayAtSign, int reqId) async {
     File configFile = getConfigFile(gatewayAtSign);

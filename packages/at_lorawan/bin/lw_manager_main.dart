@@ -48,26 +48,29 @@ void main(List<String> args) async {
   try {
     await manager.init();
 
-    logger.info('Scanning for changes in ${manager.configsDir}');
-    var changeList = await manager.scanForChanges();
+    while (true) {
+      logger.info('Scanning for changes in ${manager.configsDir}');
+      var changeList = await manager.scanForChanges();
 
-    if (changeList.isEmpty) {
-      logger.info('No changed configs');
-    } else {
-      logger.info('Changed configs: $changeList');
-      for (String gatewayAtSign in changeList) {
-        logger.info('Uploading config for $gatewayAtSign');
-        await manager.uploadConfigForGateway(gatewayAtSign);
+      if (changeList.isEmpty) {
+        logger.info('No changed configs');
+      } else {
+        logger.info('Changed configs: $changeList');
+        for (String gatewayAtSign in changeList) {
+          logger.info('Uploading config for $gatewayAtSign');
+          await manager.uploadConfigForGateway(gatewayAtSign);
+        }
+
+        var timeout = Duration(seconds: 10);
+        logger.info(
+            'Waiting for ${timeout.inSeconds} seconds for'
+                ' responses from all gateways');
+        var report = await manager.waitThenGetReport(timeout: timeout);
+        logger.info('Report:\n\t${report.join('\n\t')}');
       }
-
-      var timeout = Duration(seconds: 10);
-      logger.info(
-          'Waiting for ${timeout.inSeconds} seconds for'
-              ' responses from all gateways');
-      var report = await manager.waitThenGetReport(timeout: timeout);
-      logger.info('Report:\n\t${report.join('\n\t')}');
-
-      exit(0);
+      var sleep = Duration(seconds:30);
+      logger.info('Sleeping for ${sleep.inSeconds} seconds');
+      await Future.delayed(sleep);
     }
   } catch (error, stackTrace) {
     logger.severe('Uncaught error: $error');
