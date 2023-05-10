@@ -125,10 +125,12 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
       reports.add('${timedOut.gatewayAtSign} : NO RESPONSE');
     }
     for (var responded in responses.values) {
-      reports.add('${responded.gatewayAtSign}'
-          ' : ${responded.responses.last.respType.name.toUpperCase()}'
-          ' : ${responded.responses.last.message}'
-          ' : ${responded.responses.last.payload}');
+      if (responded.responses.isNotEmpty) {
+        reports.add('${responded.gatewayAtSign}'
+            ' : ${responded.responses.last.respType.name.toUpperCase()}'
+            ' : ${responded.responses.last.message}'
+            ' : ${responded.responses.last.payload}');
+      }
     }
     return reports;
   }

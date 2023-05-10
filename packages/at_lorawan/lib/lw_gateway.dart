@@ -67,10 +67,10 @@ class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
     // Execute the shell script
     ProcessResult reloadResult = await Process.run('reloadConfig', [configFile.path]);
 
-    // Response type should be 'NACK' if there was an error (i.e. non-zero exit code)
+    // Response type should be 'error' if there was an error (i.e. non-zero exit code)
     final AtRpcRespType respType = reloadResult.exitCode == 0
         ? AtRpcRespType.success
-        : AtRpcRespType.nack;
+        : AtRpcRespType.error;
     AtRpcResp response = AtRpcResp(
         reqId: request.reqId,
         respType: respType,
