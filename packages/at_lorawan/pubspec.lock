@@ -76,8 +76,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/at_client"
-      ref: gkc-put-request-option-to-force-use-remote-secondary
-      resolved-ref: "52f77245af39cfcced3eee8895abb1c22fe9526f"
+      ref: dart-3
+      resolved-ref: "985d5fc5923037710ff02d13247cab228290a82e"
       url: "https://github.com/atsign-foundation/at_client_sdk.git"
     source: git
     version: "3.0.60"
@@ -101,8 +101,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/at_onboarding_cli"
-      ref: trunk
-      resolved-ref: cabf407d6ae4e39915138695db967b66587d4bcd
+      ref: dart-3
+      resolved-ref: "6c73f2f8ca34c455c41d5233be4cca726c32035e"
       url: "https://github.com/atsign-foundation/at_libraries.git"
     source: git
     version: "1.2.6"
@@ -458,6 +458,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   pub_semver:
     dependency: transitive
     description:
@@ -606,10 +614,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: d1ba6ce3fa60807433511f943b51607bd7073f8fe5c14286d66fec8e05c8d24c
+      sha256: "1311639ad908dfdcb64734ac1fbd60416234c06e4351846783a79c56848a5185"
       url: "https://pub.dev"
     source: hosted
-    version: "11.5.0"
+    version: "11.7.0"
   watcher:
     dependency: transitive
     description:

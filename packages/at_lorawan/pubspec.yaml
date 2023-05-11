@@ -3,7 +3,7 @@ version: 1.0.0
 publish_to: none
 
 environment:
-  sdk: '>=2.19.4 <3.0.0'
+  sdk: '>=2.19.4 <4.0.0'
 
 dependencies:
   args: ^2.4.1
@@ -25,12 +25,12 @@ dependency_overrides:
     git:
       url: https://github.com/atsign-foundation/at_libraries.git
       path: packages/at_onboarding_cli
-      ref: trunk
+      ref: dart-3
   at_client:
     git:
       url: https://github.com/atsign-foundation/at_client_sdk.git
       path: packages/at_client
-      ref: trunk
+      ref: dart-3
 
 dev_dependencies:
   lints: ^2.0.1
