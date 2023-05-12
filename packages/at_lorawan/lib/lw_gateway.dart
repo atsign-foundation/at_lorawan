@@ -65,7 +65,7 @@ class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
     configFile.writeAsBytesSync(base64Decode(configBase64));
 
     // Execute the shell script
-    ProcessResult reloadResult = await Process.run('reloadConfig', [configFile.path]);
+    ProcessResult reloadResult = await Process.run('./reloadConfig', [configFile.path]);
 
     // Response type should be 'error' if there was an error (i.e. non-zero exit code)
     final AtRpcRespType respType = reloadResult.exitCode == 0

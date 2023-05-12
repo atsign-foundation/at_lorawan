@@ -17,6 +17,7 @@ do
       -d "vip.ve.atsign.zone" \
       -a "@$gw_name" \
       -s "$gw_name" \
+      -c "$gw_name" \
       -m "@demo_lorawan_gateway_manager_1" \
       --never-sync \
     >& "${gw_name}.client.out" 2>&1 &
