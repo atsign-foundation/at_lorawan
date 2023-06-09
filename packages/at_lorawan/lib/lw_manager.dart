@@ -4,6 +4,7 @@ import 'dart:io';
 // external imports
 import 'package:at_client/at_client.dart';
 import 'package:at_lorawan/lorawan_rpcs.dart';
+import 'package:at_utils/at_logger.dart';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -11,19 +12,25 @@ import 'package:path/path.dart' as p;
 // at_lorawan imports
 import 'package:at_cli_commons/at_cli_commons.dart';
 
-class LoraWanManager extends CLIBase implements AtRpcCallbacks {
+class LoraWanManager implements AtRpcCallbacks {
   static const String defaultNameSpace = 'lorawan_demo';
   static const JsonEncoder jsonPrettyPrinter = JsonEncoder.withIndent('    ');
 
+  late final AtSignLogger logger;
+  final CLIBase cliBase;
+  final String configsDir;
+
   Map<int, GatewayRequest> awaitingResponse = {};
   Map<int, GatewayResponses> responses = {};
-  final String configsDir;
 
   late AtRpc rpc;
 
-  @override
+  LoraWanManager({required this.cliBase, required this.configsDir});
+
+  final configShareOptions = PutRequestOptions()..useRemoteAtServer = true;
+
   Future<void> init() async {
-    await super.init();
+    await cliBase.init();
 
     await startRpcListener();
   }
@@ -138,18 +145,18 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
   @visibleForTesting
   Future<void> startRpcListener() async {
     rpc = AtRpc(
-        atClient: atClient,
-        baseNameSpace: nameSpace,
+        atClient: cliBase.atClient,
+        baseNameSpace: cliBase.nameSpace,
         domainNameSpace: 'control_plane',
         callbacks: this,
         allowList: {});
 
-    await rpc.start();
+    rpc.start();
   }
 
   @override
-  Future<AtRpcResp> handleRequest(AtRpcReq request) async {
-    logger.warning('Received unexpected request ${jsonPrettyPrinter.convert(request.toJson())}');
+  Future<AtRpcResp> handleRequest(AtRpcReq request, String fromAtSign) async {
+    logger.warning('Received unexpected request from $fromAtSign : ${jsonPrettyPrinter.convert(request.toJson())}');
     AtRpcResp response = AtRpcResp.nack(request: request, message: 'Not expecting requests');
     return response;
   }
@@ -182,21 +189,6 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
     }
   }
 
-  LoraWanManager(
-      {required super.atSign,
-        required this.configsDir,
-        required super.nameSpace,
-        required super.rootDomain,
-        super.atKeysFilePath,
-        super.homeDir,
-        super.storageDir,
-        super.downloadDir,
-        super.verbose,
-        super.cramSecret,
-        super.syncDisabled});
-
-  final configShareOptions = PutRequestOptions()..useRemoteAtServer = true;
-
   Future<AtKey> shareConfigWithGatewayAtSign(String gatewayAtSign, int reqId) async {
     File configFile = getConfigFile(gatewayAtSign);
     String configBase64 = base64Encode(configFile.readAsBytesSync());
@@ -212,13 +204,13 @@ class LoraWanManager extends CLIBase implements AtRpcCallbacks {
       ..ttl = 60 * 60 * 1000; // 1 hour
     var configRecordID = AtKey()
       ..key = configRecordIDName
-      ..sharedBy = atClient.getCurrentAtSign()
+      ..sharedBy = cliBase.atClient.getCurrentAtSign()
       ..sharedWith = gatewayAtSign
-      ..namespace = nameSpace
+      ..namespace = cliBase.nameSpace
       ..metadata = metadata;
 
     logger.info('Putting $configRecordID');
-    await atClient.put(configRecordID, configBase64, putRequestOptions: configShareOptions);
+    await cliBase.atClient.put(configRecordID, configBase64, putRequestOptions: configShareOptions);
 
     return configRecordID;
   }

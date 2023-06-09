@@ -7,44 +7,38 @@ import 'package:at_client/at_client.dart';
 // at_lorawan imports
 import 'package:at_cli_commons/at_cli_commons.dart';
 import 'package:at_lorawan/lorawan_rpcs.dart';
+import 'package:at_utils/at_logger.dart';
 
-class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
+class LoraWanGateway implements AtRpcCallbacks {
   static const String defaultNameSpace = 'lorawan_demo';
   static const JsonEncoder jsonPrettyPrinter = JsonEncoder.withIndent('    ');
 
+  late final AtSignLogger logger;
+
+  final CLIBase cliBase;
   final Set<String> managerAtsigns;
 
   bool stopRequested = false;
 
-  LoraWanGateway(
-      {required super.atSign,
-        required super.nameSpace,
-        required super.rootDomain,
-        super.atKeysFilePath,
-        super.homeDir,
-        super.storageDir,
-        super.downloadDir,
-        super.verbose,
-        super.cramSecret,
-        super.syncDisabled,
-        required this.managerAtsigns});
+  LoraWanGateway({required this.cliBase, required this.managerAtsigns}) {
+    logger = AtSignLogger(runtimeType.toString());
+  }
 
-  @override
   Future<void> init() async {
-    await super.init();
+    await cliBase.init();
   }
 
   Future<void> listenForRequests() async {
     logger.info('Listening for requests');
 
     AtRpc rpc = AtRpc(
-        atClient: atClient,
-        baseNameSpace: nameSpace,
+        atClient: cliBase.atClient,
+        baseNameSpace: cliBase.nameSpace,
         domainNameSpace: 'control_plane',
         callbacks: this,
         allowList: managerAtsigns);
 
-    await rpc.start();
+    rpc.start();
 
     while (!stopRequested) {
       await Future.delayed(Duration(milliseconds: 100));
@@ -52,15 +46,15 @@ class LoraWanGateway extends CLIBase implements AtRpcCallbacks {
   }
 
   @override
-  Future<AtRpcResp> handleRequest(AtRpcReq request) async {
-    logger.info('Received request ${jsonPrettyPrinter.convert(request.toJson())}');
+  Future<AtRpcResp> handleRequest(AtRpcReq request, String fromAtSign) async {
+    logger.info('Received request from $fromAtSign: ${jsonPrettyPrinter.convert(request.toJson())}');
 
     GatewayRequestPayload payload = GatewayRequestPayload.fromJson(request.payload);
 
     AtKey sharedConfigRecordID = AtKey.fromString(payload.sharedConfigID!);
 
     // Get the shared config and write it to a file
-    String configBase64 = (await atClient.get(sharedConfigRecordID)).value.toString();
+    String configBase64 = (await cliBase.atClient.get(sharedConfigRecordID)).value.toString();
     File configFile = File(sharedConfigRecordID.toString());
     configFile.writeAsBytesSync(base64Decode(configBase64));
 

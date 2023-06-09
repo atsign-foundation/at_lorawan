@@ -28,7 +28,7 @@ void main(List<String> args) async {
   }
 
   try {
-    gateway = LoraWanGateway(
+    CLIBase cliBase = CLIBase(
         atSign: parsedArgs['atsign'],
         atKeysFilePath: parsedArgs['key-file'],
         nameSpace: parsedArgs['namespace'] ?? LoraWanGateway.defaultNameSpace,
@@ -36,9 +36,13 @@ void main(List<String> args) async {
         homeDir: getHomeDirectory(),
         storageDir: parsedArgs['storage-dir'],
         verbose: parsedArgs['verbose'] == true,
-        managerAtsigns: parsedArgs['manager-atsigns'].toString().split(',').toSet(),
         cramSecret: parsedArgs['cram-secret'],
         syncDisabled: parsedArgs['never-sync']);
+
+    gateway = LoraWanGateway(
+        cliBase: cliBase,
+        managerAtsigns:
+            parsedArgs['manager-atsigns'].toString().split(',').toSet());
   } catch (e) {
     print(argsParser.usage);
     print(e);
