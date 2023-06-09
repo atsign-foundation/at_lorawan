@@ -25,7 +25,9 @@ class LoraWanManager implements AtRpcCallbacks {
 
   late AtRpc rpc;
 
-  LoraWanManager({required this.cliBase, required this.configsDir});
+  LoraWanManager({required this.cliBase, required this.configsDir}) {
+    logger = AtSignLogger(runtimeType.toString());
+  }
 
   final configShareOptions = PutRequestOptions()..useRemoteAtServer = true;
 

@@ -79,7 +79,7 @@ packages:
     description:
       path: "packages/at_client"
       ref: gkc-rpcs
-      resolved-ref: "8faadb4409646ef1798b28b6bb2513e730ae8f60"
+      resolved-ref: f37c0c562f929235cc6c9b80f714a1973499dec0
       url: "https://github.com/atsign-foundation/at_client_sdk.git"
     source: git
     version: "3.0.61"
