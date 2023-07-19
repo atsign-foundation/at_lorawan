@@ -16,10 +16,12 @@ contributions, documentation contributions - all are welcome. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## What's here?
-This repo contains some example software which will show how a gateway manager,
-with its own atSign e.g. `@demo_gateway_manager` can manage many gateways, 
-each with their own atSigns e.g. `@demo_gateway_1`, `@demo_gateway_2`, ... 
-`@demo_gateway_1000` etc. Initially there are two programs:
+
+This repo contains some **example** software which will show how a gateway
+manager, with its own atSign e.g. `@demo_gateway_manager`, could manage many
+gateways, each with their own atSigns
+e.g. `@demo_gateway_1`, `@demo_gateway_2`, ... `@demo_gateway_1000` etc.
+Initially there are two example/demo programs:
 * A `gateway` program (to on a LoraWan gateway device) which will
   * On first run, do initial atSign set-up
   * Connect and authenticate to the atServer for this gateway's atSign
