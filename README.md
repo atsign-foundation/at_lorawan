@@ -16,12 +16,11 @@ contributions, documentation contributions - all are welcome. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## What's here?
-We just created this repo on May 3rd. Over the course of the next few days we 
-will be building some example software which will show how a gateway manager,
+This repo contains some example software which will show how a gateway manager,
 with its own atSign e.g. `@demo_gateway_manager` can manage many gateways, 
 each with their own atSigns e.g. `@demo_gateway_1`, `@demo_gateway_2`, ... 
-`@demo_gateway_1000` etc. Initially we will build two programs:
-* A `gateway` program which could run on a LoraWan gateway which will
+`@demo_gateway_1000` etc. Initially there are two programs:
+* A `gateway` program (to on a LoraWan gateway device) which will
   * On first run, do initial atSign set-up
   * Connect and authenticate to the atServer for this gateway's atSign
   * Listen for requests from the gateway's list of authorized 'manager' 
@@ -51,9 +50,3 @@ each with their own atSigns e.g. `@demo_gateway_1`, `@demo_gateway_2`, ...
     * Whether an 'update your config' request was sent to the gateway
     * Whether the gateway acknowledged receipt within N seconds or not
     * Whether the gateway successfully downloaded its new config or not
-
-[//]: # ( TODO Make two variations of the shell script)
-
-[//]: # ( one for an "ACME Corp" gateway)
-
-[//]: # (another for a "Wonka Industries" gateway)
