@@ -20,28 +20,11 @@ void main(List<String> args) async {
         mandatory: true,
         help: 'directory with sub-directories for each managed gateway');
 
-  ArgResults parsedArgs = argsParser.parse(args);
-
-  if (parsedArgs['help'] == true) {
-    print(argsParser.usage);
-    exit(0);
-  }
-
   try {
-    CLIBase cliBase = CLIBase(
-        atSign: parsedArgs['atsign'],
-        atKeysFilePath: parsedArgs['key-file'],
-        nameSpace: parsedArgs['namespace'] ?? LoraWanManager.defaultNameSpace,
-        rootDomain: parsedArgs['root-domain'],
-        homeDir: getHomeDirectory(),
-        storageDir: parsedArgs['storage-dir'],
-        verbose: parsedArgs['verbose'] == true,
-        cramSecret: parsedArgs['cram-secret'],
-        syncDisabled: parsedArgs['never-sync']);
-
+    CLIBase cliBase = await CLIBase.fromCommandLineArgs(args, parser:argsParser);
     manager = LoraWanManager(
-      cliBase: cliBase,
-      configsDir: parsedArgs['configs-dir'],
+      atClient: cliBase.atClient,
+      configsDir: argsParser.parse(args)['configs-dir'],
     );
   } catch (e) {
     print(argsParser.usage);

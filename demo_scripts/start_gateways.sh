@@ -19,6 +19,7 @@ do
       --storage-dir "$gw_name" \
       --cram-secret "$gw_name" \
       --manager-atsigns "@demo_lorawan_gateway_manager_1" \
+      --namespace "lorawan_demo" \
       --never-sync \
     >& "${gw_name}.client.out" 2>&1 &
   cd ..

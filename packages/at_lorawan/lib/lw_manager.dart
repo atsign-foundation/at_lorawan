@@ -1,23 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
 
-// external imports
 import 'package:at_client/at_client.dart';
-import 'package:at_lorawan/lorawan_rpcs.dart';
 import 'package:at_utils/at_logger.dart';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
-// at_lorawan imports
-import 'package:at_cli_commons/at_cli_commons.dart';
+import 'package:at_lorawan/lorawan_rpcs.dart';
 
 class LoraWanManager implements AtRpcCallbacks {
   static const String defaultNameSpace = 'lorawan_demo';
   static const JsonEncoder jsonPrettyPrinter = JsonEncoder.withIndent('    ');
 
   late final AtSignLogger logger;
-  final CLIBase cliBase;
+  final AtClient atClient;
   final String configsDir;
 
   Map<int, GatewayRequest> awaitingResponse = {};
@@ -25,15 +22,13 @@ class LoraWanManager implements AtRpcCallbacks {
 
   late AtRpc rpc;
 
-  LoraWanManager({required this.cliBase, required this.configsDir}) {
+  LoraWanManager({required this.atClient, required this.configsDir}) {
     logger = AtSignLogger(runtimeType.toString());
   }
 
   final configShareOptions = PutRequestOptions()..useRemoteAtServer = true;
 
   Future<void> init() async {
-    await cliBase.init();
-
     await startRpcListener();
   }
 
@@ -61,7 +56,7 @@ class LoraWanManager implements AtRpcCallbacks {
       var gatewayAtSign = p.basename(subDir.path);
       if (gatewayAtSign.startsWith('@')) {
         File configFile = getConfigFile(gatewayAtSign);
-        if (! configFile.existsSync()) {
+        if (!configFile.existsSync()) {
           logger.warning('No "config" file found in ${subDir.path} - ignoring');
           continue;
         }
@@ -73,7 +68,8 @@ class LoraWanManager implements AtRpcCallbacks {
           lastSentDigest = hashFile.readAsStringSync();
         }
 
-        logger.finer('HashCode of config file is $latestDigest - last sent hashCode is $lastSentDigest');
+        logger.finer(
+            'HashCode of config file is $latestDigest - last sent hashCode is $lastSentDigest');
         if (latestDigest != lastSentDigest) {
           changed.add(gatewayAtSign);
         }
@@ -86,6 +82,7 @@ class LoraWanManager implements AtRpcCallbacks {
   File getConfigFile(String gatewayAtSign) {
     return File(p.join(configsDir, gatewayAtSign, 'config'));
   }
+
   File getLastConfigHashFile(String gatewayAtSign) {
     return File(p.join(configsDir, gatewayAtSign, '.lastHashSent'));
   }
@@ -102,9 +99,12 @@ class LoraWanManager implements AtRpcCallbacks {
   ///   write the hash to .lastSentHash
   Future<void> uploadConfigForGateway(String gatewayAtSign) async {
     int reqId = DateTime.now().microsecondsSinceEpoch;
-    AtKey sharedConfigID = await shareConfigWithGatewayAtSign(gatewayAtSign, reqId);
+    AtKey sharedConfigID =
+        await shareConfigWithGatewayAtSign(gatewayAtSign, reqId);
 
-    GatewayRequestPayload payload = GatewayRequestPayload(reqType: GatewayRequestType.reloadConfig, sharedConfigID: sharedConfigID.toString());
+    GatewayRequestPayload payload = GatewayRequestPayload(
+        reqType: GatewayRequestType.reloadConfig,
+        sharedConfigID: sharedConfigID.toString());
     var req = AtRpcReq(reqId: reqId, payload: payload.toJson());
     await rpc.sendRequest(toAtSign: gatewayAtSign, request: req);
 
@@ -114,8 +114,10 @@ class LoraWanManager implements AtRpcCallbacks {
     return;
   }
 
-  static const Duration defaultTimeout = Duration(seconds:30);
-  Future<List<String>> waitThenGetReport({Duration timeout = defaultTimeout}) async {
+  static const Duration defaultTimeout = Duration(seconds: 30);
+
+  Future<List<String>> waitThenGetReport(
+      {Duration timeout = defaultTimeout}) async {
     DateTime deadline = DateTime.now().add(timeout);
 
     while (awaitingResponse.isNotEmpty && deadline.isAfter(DateTime.now())) {
@@ -147,8 +149,8 @@ class LoraWanManager implements AtRpcCallbacks {
   @visibleForTesting
   Future<void> startRpcListener() async {
     rpc = AtRpc(
-        atClient: cliBase.atClient,
-        baseNameSpace: cliBase.nameSpace,
+        atClient: atClient,
+        baseNameSpace: atClient.getPreferences()!.namespace!,
         domainNameSpace: 'control_plane',
         callbacks: this,
         allowList: {});
@@ -158,14 +160,17 @@ class LoraWanManager implements AtRpcCallbacks {
 
   @override
   Future<AtRpcResp> handleRequest(AtRpcReq request, String fromAtSign) async {
-    logger.warning('Received unexpected request from $fromAtSign : ${jsonPrettyPrinter.convert(request.toJson())}');
-    AtRpcResp response = AtRpcResp.nack(request: request, message: 'Not expecting requests');
+    logger.warning(
+        'Received unexpected request from $fromAtSign : ${jsonPrettyPrinter.convert(request.toJson())}');
+    AtRpcResp response =
+        AtRpcResp.nack(request: request, message: 'Not expecting requests');
     return response;
   }
 
   @override
   Future<void> handleResponse(AtRpcResp response) async {
-    logger.info('Received response ${jsonPrettyPrinter.convert(response.toJson())}');
+    logger.info(
+        'Received response ${jsonPrettyPrinter.convert(response.toJson())}');
     if (awaitingResponse.containsKey(response.reqId)) {
       var gatewayResponses = responses[response.reqId]!;
       gatewayResponses.responses.add(response);
@@ -191,13 +196,13 @@ class LoraWanManager implements AtRpcCallbacks {
     }
   }
 
-  Future<AtKey> shareConfigWithGatewayAtSign(String gatewayAtSign, int reqId) async {
+  Future<AtKey> shareConfigWithGatewayAtSign(
+      String gatewayAtSign, int reqId) async {
     File configFile = getConfigFile(gatewayAtSign);
     String configBase64 = base64Encode(configFile.readAsBytesSync());
 
     // Store the config to remoteSecondary for retrieval by the gateway
-    String configRecordIDName =
-        '$reqId.configs';
+    String configRecordIDName = '$reqId.configs';
     Metadata metadata = Metadata()
       ..isPublic = false
       ..isEncrypted = true
@@ -206,13 +211,14 @@ class LoraWanManager implements AtRpcCallbacks {
       ..ttl = 60 * 60 * 1000; // 1 hour
     var configRecordID = AtKey()
       ..key = configRecordIDName
-      ..sharedBy = cliBase.atClient.getCurrentAtSign()
+      ..sharedBy = atClient.getCurrentAtSign()
       ..sharedWith = gatewayAtSign
-      ..namespace = cliBase.nameSpace
+      ..namespace = atClient.getPreferences()!.namespace!
       ..metadata = metadata;
 
     logger.info('Putting $configRecordID');
-    await cliBase.atClient.put(configRecordID, configBase64, putRequestOptions: configShareOptions);
+    await atClient.put(configRecordID, configBase64,
+        putRequestOptions: configShareOptions);
 
     return configRecordID;
   }
@@ -225,6 +231,7 @@ class GatewayRequest {
 
   GatewayRequest(this.gatewayAtSign, this.request);
 }
+
 class GatewayResponses {
   final String gatewayAtSign;
   final List<AtRpcResp> responses;

@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:at_client/at_client.dart';
 
 // at_lorawan imports
-import 'package:at_cli_commons/at_cli_commons.dart';
 import 'package:at_lorawan/lorawan_rpcs.dart';
 import 'package:at_utils/at_logger.dart';
 
@@ -15,25 +14,21 @@ class LoraWanGateway implements AtRpcCallbacks {
 
   late final AtSignLogger logger;
 
-  final CLIBase cliBase;
+  final AtClient atClient;
   final Set<String> managerAtsigns;
 
   bool stopRequested = false;
 
-  LoraWanGateway({required this.cliBase, required this.managerAtsigns}) {
+  LoraWanGateway({required this.atClient, required this.managerAtsigns}) {
     logger = AtSignLogger(runtimeType.toString());
-  }
-
-  Future<void> init() async {
-    await cliBase.init();
   }
 
   Future<void> listenForRequests() async {
     logger.info('Listening for requests');
 
     AtRpc rpc = AtRpc(
-        atClient: cliBase.atClient,
-        baseNameSpace: cliBase.nameSpace,
+        atClient: atClient,
+        baseNameSpace: atClient.getPreferences()!.namespace!,
         domainNameSpace: 'control_plane',
         callbacks: this,
         allowList: managerAtsigns);
@@ -54,7 +49,7 @@ class LoraWanGateway implements AtRpcCallbacks {
     AtKey sharedConfigRecordID = AtKey.fromString(payload.sharedConfigID!);
 
     // Get the shared config and write it to a file
-    String configBase64 = (await cliBase.atClient.get(sharedConfigRecordID)).value.toString();
+    String configBase64 = (await atClient.get(sharedConfigRecordID)).value.toString();
     File configFile = File(sharedConfigRecordID.toString());
     configFile.writeAsBytesSync(base64Decode(configBase64));
 

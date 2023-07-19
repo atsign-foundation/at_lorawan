@@ -12,4 +12,5 @@ dart ../../packages/at_lorawan/bin/lw_manager_main.dart \
     --root-domain "vip.ve.atsign.zone" \
     --never-sync \
     --storage-dir "$mgr_name" \
+    --namespace "lorawan_demo" \
     --configs-dir configs

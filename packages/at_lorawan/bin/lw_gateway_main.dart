@@ -20,29 +20,13 @@ void main(List<String> args) async {
         help:
             'Comma-separated list of atSigns which are allowed to manage this device');
 
-  ArgResults parsedArgs = argsParser.parse(args);
-
-  if (parsedArgs['help'] == true) {
-    print(argsParser.usage);
-    exit(0);
-  }
-
   try {
-    CLIBase cliBase = CLIBase(
-        atSign: parsedArgs['atsign'],
-        atKeysFilePath: parsedArgs['key-file'],
-        nameSpace: parsedArgs['namespace'] ?? LoraWanGateway.defaultNameSpace,
-        rootDomain: parsedArgs['root-domain'],
-        homeDir: getHomeDirectory(),
-        storageDir: parsedArgs['storage-dir'],
-        verbose: parsedArgs['verbose'] == true,
-        cramSecret: parsedArgs['cram-secret'],
-        syncDisabled: parsedArgs['never-sync']);
+    CLIBase cliBase = await CLIBase.fromCommandLineArgs(args, parser: argsParser);
 
     gateway = LoraWanGateway(
-        cliBase: cliBase,
+        atClient: cliBase.atClient,
         managerAtsigns:
-            parsedArgs['manager-atsigns'].toString().split(',').toSet());
+        argsParser.parse(args)['manager-atsigns'].toString().split(',').toSet());
   } catch (e) {
     print(argsParser.usage);
     print(e);
@@ -50,9 +34,9 @@ void main(List<String> args) async {
   }
 
   try {
-    await gateway.init();
 
     await gateway.listenForRequests();
+
   } catch (error, stackTrace) {
     AtSignLogger logger = AtSignLogger('LoraWanGateway.main');
     logger.severe('Uncaught error: $error');
